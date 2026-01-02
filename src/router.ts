@@ -11,6 +11,10 @@ const router = createRouter({
       path: '/dino',
       component: () => import('./pages/002-dino.vue'),
     },
+    {
+      path: '/markdown',
+      component: () => import('./pages/003-markdown.vue'),
+    },
   ],
 })
 
