@@ -1,5 +1,3 @@
-<!-- https://prosemirror.net/examples/basic/ -->
-
 <script setup lang="ts">
 import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'

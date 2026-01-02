@@ -15,6 +15,10 @@ const router = createRouter({
       path: '/markdown',
       component: () => import('./pages/003-markdown.vue'),
     },
+    {
+      path: '/tooltip',
+      component: () => import('./pages/004-tooltip.vue'),
+    },
   ],
 })
 

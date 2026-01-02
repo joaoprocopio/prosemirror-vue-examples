@@ -1,5 +1,3 @@
-<!-- https://prosemirror.net/examples/dino/ -->
-
 <script setup lang="ts">
 import { exampleSetup } from 'prosemirror-example-setup'
 import { EditorState } from 'prosemirror-state'

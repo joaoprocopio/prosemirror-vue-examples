@@ -1,5 +1,3 @@
-<!-- https://prosemirror.net/examples/dino/ -->
-
 <script setup lang="ts">
 import { EditorState, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
