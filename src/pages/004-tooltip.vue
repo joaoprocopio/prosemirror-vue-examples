@@ -4,7 +4,7 @@ import { DOMParser } from 'prosemirror-model'
 import { schema } from 'prosemirror-schema-basic'
 import { EditorState, Plugin, type PluginView } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
-import { computed, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
+import { onMounted, shallowRef, useTemplateRef } from 'vue'
 
 const selectionSizePlugin = new Plugin({
   view(view) {
@@ -21,13 +21,15 @@ class SelectionSizeTooltip implements PluginView {
     // this.tooltip.style.display = 'none'
     view.dom.parentNode!.append(this.tooltip)
 
-    this.update(view, null)
+    this.update(view, view.state)
   }
 
   update(view: EditorView, lastState: EditorState) {
     const state = view.state
 
-    if (lastState && lastState.doc.eq(state.doc) && lastState.selection.eq(state.selection)) return
+    if (lastState.doc.eq(state.doc) && lastState.selection.eq(state.selection)) {
+      return
+    }
 
     if (state.selection.empty) {
       this.tooltip.style.display = 'none'
