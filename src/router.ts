@@ -19,6 +19,10 @@ const router = createRouter({
       path: '/tooltip',
       component: () => import('./pages/004-tooltip.vue'),
     },
+    {
+      path: '/upload',
+      component: () => import('./pages/005-upload.vue'),
+    },
   ],
 })
 

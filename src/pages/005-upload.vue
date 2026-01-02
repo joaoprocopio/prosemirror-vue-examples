@@ -2,59 +2,9 @@
 import { exampleSetup } from 'prosemirror-example-setup'
 import { DOMParser } from 'prosemirror-model'
 import { schema } from 'prosemirror-schema-basic'
-import { EditorState, Plugin, type PluginView } from 'prosemirror-state'
+import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { onMounted, shallowRef, useTemplateRef } from 'vue'
-
-const selectionSizePlugin = new Plugin({
-  view(view) {
-    return new SelectionSizeTooltip(view)
-  },
-})
-
-class SelectionSizeTooltip implements PluginView {
-  tooltip: HTMLElement
-
-  constructor(view: EditorView) {
-    this.tooltip = document.createElement('div')
-    this.tooltip.className = 'tooltip'
-    this.tooltip.style.display = 'none'
-    view.dom.parentNode!.append(this.tooltip)
-
-    this.update(view, view.state)
-  }
-
-  update(view: EditorView, lastState: EditorState) {
-    const state = view.state
-
-    if (lastState.doc.eq(state.doc) && lastState.selection.eq(state.selection)) {
-      return
-    }
-
-    if (state.selection.empty) {
-      this.tooltip.style.display = 'none'
-      return
-    }
-
-    this.tooltip.style.display = ''
-    const { from, to } = state.selection
-
-    const start = view.coordsAtPos(from),
-      end = view.coordsAtPos(to)
-
-    const box = this.tooltip.offsetParent!.getBoundingClientRect()
-
-    const left = Math.max((start.left + end.left) / 2, start.left + 3)
-
-    this.tooltip.style.left = left - box.left + 'px'
-    this.tooltip.style.bottom = box.bottom - start.top + 'px'
-    this.tooltip.textContent = String(to - from)
-  }
-
-  destroy() {
-    this.tooltip.remove()
-  }
-}
 
 const editorEl = useTemplateRef('editor')
 const contentEl = useTemplateRef('content')
@@ -65,7 +15,7 @@ onMounted(() => {
   view.value = new EditorView(editorEl.value!, {
     state: EditorState.create({
       doc: DOMParser.fromSchema(schema).parse(contentEl.value!),
-      plugins: exampleSetup({ schema }).concat(selectionSizePlugin),
+      plugins: exampleSetup({ schema }),
     }),
   })
 })

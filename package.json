@@ -4,6 +4,7 @@
   "name": "prosemirror-vue-examples",
   "type": "module",
   "scripts": {
+    "clean": "pnpm cache delete && pnpm store prune --force && git clean -xdf node_modules dist",
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
