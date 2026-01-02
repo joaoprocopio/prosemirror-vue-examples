@@ -43,7 +43,8 @@ onMounted(() => {
     <p>
       To apply styling, you can select a piece of text and manipulate its styling from the menu. The
       basic schema supports <em>emphasis</em>, <strong>strong text</strong>,
-      <a href="http://marijnhaverbeke.nl/blog">links</a>, <code>code font</code>, and images.
+      <a href="http://marijnhaverbeke.nl/blog">links</a>, <code>code font</code>, and
+      <img src="/img/smiley.png" /> images.
     </p>
 
     <p>

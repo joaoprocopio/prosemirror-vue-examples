@@ -5,7 +5,11 @@ const router = createRouter({
   routes: [
     {
       path: '/basic',
-      component: () => import('./pages/basic.vue'),
+      component: () => import('./pages/001-basic.vue'),
+    },
+    {
+      path: '/dino',
+      component: () => import('./pages/002-dino.vue'),
     },
   ],
 })
