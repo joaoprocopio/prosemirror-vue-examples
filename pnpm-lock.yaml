@@ -11,6 +11,9 @@ importers:
       prosemirror-example-setup:
         specifier: ^1.2.3
         version: 1.2.3
+      prosemirror-menu:
+        specifier: ^1.2.5
+        version: 1.2.5
       prosemirror-model:
         specifier: ^1.25.4
         version: 1.25.4

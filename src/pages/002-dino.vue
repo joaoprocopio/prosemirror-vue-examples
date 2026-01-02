@@ -1,12 +1,12 @@
-<!-- https://prosemirror.net/examples/basic/ -->
+<!-- https://prosemirror.net/examples/dino/ -->
 
 <script setup lang="ts">
-import { EditorState } from 'prosemirror-state'
+import { EditorState, Transaction } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
-import { Schema, DOMParser } from 'prosemirror-model'
+import { Schema, DOMParser, type NodeSpec } from 'prosemirror-model'
 import { schema } from 'prosemirror-schema-basic'
-import { addListNodes } from 'prosemirror-schema-list'
-import { exampleSetup } from 'prosemirror-example-setup'
+import { buildMenuItems, exampleSetup } from 'prosemirror-example-setup'
+import { MenuItem, type MenuElement } from 'prosemirror-menu'
 import { onMounted, shallowRef, useTemplateRef } from 'vue'
 
 const editorEl = useTemplateRef('editor')
@@ -15,16 +15,92 @@ const contentEl = useTemplateRef('content')
 const state = shallowRef<EditorState>()
 const view = shallowRef<EditorView>()
 
-const mySchema = new Schema({
-  nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
+const dinos = [
+  'brontosaurus',
+  'stegosaurus',
+  'triceratops',
+  'tyrannosaurus',
+  'pterodactyl',
+] as const
+
+type Dinos = (typeof dinos)[number]
+
+const dinoNodeSpec: NodeSpec = {
+  attrs: { type: { default: 'brontosaurus' } },
+  inline: true,
+  group: 'inline',
+  draggable: true,
+  toDOM(node) {
+    return [
+      'img',
+      {
+        'dino-type': node.attrs.type,
+        title: node.attrs.type,
+        src: `/img/dino/${node.attrs.type}.png`,
+        class: 'dinosaur',
+      },
+    ]
+  },
+  parseDOM: [
+    {
+      tag: 'img[dino-type]',
+      getAttrs(dom) {
+        const type = dom.getAttribute('dino-type')
+        return dinos.indexOf(type as Dinos) > -1
+          ? {
+              type,
+            }
+          : false
+      },
+    },
+  ],
+}
+
+const dinoSchema = new Schema({
+  nodes: schema.spec.nodes.addBefore('image', 'dino', dinoNodeSpec),
   marks: schema.spec.marks,
 })
 
+const dinoType = dinoSchema.nodes.dino!
+
+function insertDino(type: string) {
+  return function (state: EditorState, dispatch?: (tr: Transaction) => void) {
+    const { $from } = state.selection,
+      index = $from.index()
+
+    if (!$from.parent.canReplaceWith(index, index, dinoType)) {
+      return false
+    }
+
+    if (dispatch) {
+      dispatch(state.tr.replaceSelectionWith(dinoType.create({ type })))
+    }
+
+    return true
+  }
+}
+
 onMounted(() => {
-  console.log(DOMParser.fromSchema(mySchema).parse(contentEl.value!))
+  const startDoc = DOMParser.fromSchema(dinoSchema).parse(contentEl.value!)
+  const menu = buildMenuItems(dinoSchema)
+
+  dinos.forEach((dino) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;((menu.insertMenu as any).content as MenuElement[]).push(
+      new MenuItem({
+        title: `Insert ${dino}`,
+        label: dino.charAt(0).toUpperCase() + dino.slice(1),
+        enable(state) {
+          return insertDino(dino)(state)
+        },
+        run: insertDino(dino),
+      }),
+    )
+  })
+
   state.value = EditorState.create({
-    doc: DOMParser.fromSchema(mySchema).parse(contentEl.value!),
-    plugins: exampleSetup({ schema: mySchema }),
+    doc: startDoc,
+    plugins: exampleSetup({ schema: dinoSchema, menuContent: menu.fullMenu }),
   })
 
   view.value = new EditorView(editorEl.value!, {
@@ -37,22 +113,22 @@ onMounted(() => {
   <div id="editor" ref="editor" />
 
   <div style="display: none" ref="content">
-    <h3>Hello ProseMirror</h3>
-
-    <p>This is editable text. You can focus it and start typing.</p>
-
+    <p>This is your dinosaur-enabled editor. The insert menu allows you to insert dinosaurs.</p>
     <p>
-      To apply styling, you can select a piece of text and manipulate its styling from the menu. The
-      basic schema supports <em>emphasis</em>, <strong>strong text</strong>,
-      <a href="http://marijnhaverbeke.nl/blog">links</a>, <code>code font</code>, and
-      <img src="/img/smiley.png" /> images.
+      This paragraph <img class="dinosaur" dino-type="stegosaurus" />, for example,
+      <img class="dinosaur" dino-type="triceratops" />
+      is full <img class="dinosaur" dino-type="tyrannosaurus" /> of dinosaurs.
     </p>
-
-    <p>
-      Block-level structure can be manipulated with key bindings (try ctrl-shift-2 to create a level
-      2 heading, or enter in an empty textblock to exit the parent block), or through the menu.
-    </p>
-
-    <p>Try using the “list” item in the menu to wrap this paragraph in a numbered list.</p>
+    <p>Dinosaur nodes can be selected, copied, pasted, dragged, and so on.</p>
   </div>
 </template>
+
+<style>
+img.dinosaur {
+  height: 40px;
+  vertical-align: bottom;
+  border: 1px solid #0ae;
+  border-radius: 4px;
+  background: #ddf6ff;
+}
+</style>
